@@ -1,0 +1,1061 @@
+{
+  "meta": {
+    "project": "viber-wordpress-be",
+    "workspace": "e:/viber-wordpress/be",
+    "built_at": "2025-07-14T00:00:00.000Z",
+    "total_nodes": 92,
+    "total_edges": 126,
+    "communities": 13
+  },
+  "nodes": [
+    {
+      "id": "file:main",
+      "label": "main.ts",
+      "type": "FILE",
+      "community": "common",
+      "path": "src/main.ts",
+      "exports": ["bootstrap"],
+      "description": "NestJS bootstrap. Configures global prefix /api/v1, CORS, cookie-parser, ValidationPipe, global guards (JwtAuthGuard + PermissionsGuard), filters, interceptors, Swagger, and static uploads serving."
+    },
+    {
+      "id": "file:app-module",
+      "label": "app.module.ts",
+      "type": "FILE",
+      "community": "common",
+      "path": "src/app.module.ts",
+      "exports": ["AppModule"],
+      "description": "Root NestJS module. Imports all feature modules: Auth, Users, Pages, Posts, Categories, Menus, Media, Settings, Messaging, Promotions, Locations, Revalidation, and Database."
+    },
+    {
+      "id": "file:configuration",
+      "label": "configuration.ts",
+      "type": "FILE",
+      "community": "common",
+      "path": "src/config/configuration.ts",
+      "exports": ["configuration", "validationSchema", "AppConfig"],
+      "description": "NestJS ConfigModule factory. Validates env vars (DATABASE_URL, JWT_SECRET, etc.) via Joi schema and exports typed AppConfig."
+    },
+    {
+      "id": "file:prisma-service",
+      "label": "prisma.service.ts",
+      "type": "FILE",
+      "community": "database",
+      "path": "src/database/prisma.service.ts",
+      "exports": ["PrismaService"],
+      "description": "PrismaClient wrapper injectable as NestJS service. Handles connect/disconnect lifecycle."
+    },
+    {
+      "id": "file:database-module",
+      "label": "database.module.ts",
+      "type": "FILE",
+      "community": "database",
+      "path": "src/database/database.module.ts",
+      "exports": ["DatabaseModule"],
+      "description": "Global NestJS module exporting PrismaService for all other modules."
+    },
+    {
+      "id": "file:prisma-schema",
+      "label": "schema.prisma",
+      "type": "FILE",
+      "community": "database",
+      "path": "prisma/schema.prisma",
+      "exports": [],
+      "description": "Prisma schema defining all database models: User, Role, Permission, RefreshToken, Media, Page, PageBlock, Post, PostBlock, PostComment, Category, Menu, MenuItem, Subscriber, MessageCampaign, MessageRecipient, MessageTemplate, PromotionBanner, SiteSetting, Location."
+    },
+    {
+      "id": "file:all-exceptions-filter",
+      "label": "all-exceptions.filter.ts",
+      "type": "FILE",
+      "community": "common",
+      "path": "src/common/filters/all-exceptions.filter.ts",
+      "exports": ["AllExceptionsFilter"],
+      "description": "Global exception filter that normalizes all errors to a consistent JSON response shape."
+    },
+    {
+      "id": "file:logging-interceptor",
+      "label": "logging.interceptor.ts",
+      "type": "FILE",
+      "community": "common",
+      "path": "src/common/interceptors/logging.interceptor.ts",
+      "exports": ["LoggingInterceptor"],
+      "description": "Global request logging interceptor."
+    },
+    {
+      "id": "file:jwt-auth-guard",
+      "label": "jwt-auth.guard.ts",
+      "type": "FILE",
+      "community": "common",
+      "path": "src/common/guards/jwt-auth.guard.ts",
+      "exports": ["JwtAuthGuard"],
+      "description": "Global JWT auth guard. Skips authentication for routes decorated with @Public()."
+    },
+    {
+      "id": "file:jwt-refresh-guard",
+      "label": "jwt-refresh.guard.ts",
+      "type": "FILE",
+      "community": "common",
+      "path": "src/common/guards/jwt-refresh.guard.ts",
+      "exports": ["JwtRefreshGuard"],
+      "description": "Guard for the /auth/refresh endpoint using the JWT refresh strategy."
+    },
+    {
+      "id": "file:permissions-guard",
+      "label": "permissions.guard.ts",
+      "type": "FILE",
+      "community": "common",
+      "path": "src/common/guards/permissions.guard.ts",
+      "exports": ["PermissionsGuard"],
+      "description": "Global permissions guard. Reads @RequirePermissions() metadata and checks user.permissions array from JWT payload."
+    },
+    {
+      "id": "file:public-decorator",
+      "label": "public.decorator.ts",
+      "type": "FILE",
+      "community": "common",
+      "path": "src/common/decorators/public.decorator.ts",
+      "exports": ["Public", "IS_PUBLIC_KEY"],
+      "description": "Route decorator marking endpoints as public (no JWT required)."
+    },
+    {
+      "id": "file:current-user-decorator",
+      "label": "current-user.decorator.ts",
+      "type": "FILE",
+      "community": "common",
+      "path": "src/common/decorators/current-user.decorator.ts",
+      "exports": ["CurrentUser"],
+      "description": "Parameter decorator extracting the JWT payload (user) from the request object."
+    },
+    {
+      "id": "file:require-permissions-decorator",
+      "label": "require-permissions.decorator.ts",
+      "type": "FILE",
+      "community": "common",
+      "path": "src/common/decorators/require-permissions.decorator.ts",
+      "exports": ["RequirePermissions", "PERMISSIONS_KEY"],
+      "description": "Method decorator setting required permission strings for PermissionsGuard."
+    },
+    {
+      "id": "file:pagination-dto",
+      "label": "pagination.dto.ts",
+      "type": "FILE",
+      "community": "common",
+      "path": "src/common/dto/pagination.dto.ts",
+      "exports": ["PaginationQueryDto"],
+      "description": "Base DTO for paginated list queries: page, pageSize, search."
+    },
+    {
+      "id": "file:jwt-payload-type",
+      "label": "jwt-payload.type.ts",
+      "type": "FILE",
+      "community": "common",
+      "path": "src/common/types/jwt-payload.type.ts",
+      "exports": ["JwtPayload"],
+      "description": "TypeScript interface for the JWT access token payload: sub, email, roles, permissions."
+    },
+    {
+      "id": "file:auth-controller",
+      "label": "auth.controller.ts",
+      "type": "FILE",
+      "community": "auth-module",
+      "path": "src/modules/auth/auth.controller.ts",
+      "exports": ["AuthController"],
+      "description": "Auth REST controller. Exposes: POST /auth/login, POST /auth/refresh, POST /auth/logout, GET /auth/me."
+    },
+    {
+      "id": "file:auth-service",
+      "label": "auth.service.ts",
+      "type": "FILE",
+      "community": "auth-module",
+      "path": "src/modules/auth/auth.service.ts",
+      "exports": ["AuthService"],
+      "description": "Auth business logic: login (bcrypt), token generation, refresh token rotation (hashed in DB), logout (revoke), getProfile."
+    },
+    {
+      "id": "file:auth-module",
+      "label": "auth.module.ts",
+      "type": "FILE",
+      "community": "auth-module",
+      "path": "src/modules/auth/auth.module.ts",
+      "exports": ["AuthModule"],
+      "description": "Auth NestJS module wiring AuthController, AuthService, JWT strategies, and PassportModule."
+    },
+    {
+      "id": "file:auth-strategies",
+      "label": "auth/strategies/",
+      "type": "FILE",
+      "community": "auth-module",
+      "path": "src/modules/auth/strategies/",
+      "exports": ["JwtStrategy", "JwtRefreshStrategy"],
+      "description": "Passport JWT strategies: access token (jwt) and refresh token (jwt-refresh) extractors."
+    },
+    {
+      "id": "file:users-controller",
+      "label": "users.controller.ts",
+      "type": "FILE",
+      "community": "users-module",
+      "path": "src/modules/users/users.controller.ts",
+      "exports": ["UsersController"],
+      "description": "Users admin CRUD controller. Endpoints: GET /users, GET /users/:id, POST /users, PATCH /users/:id, DELETE /users/:id, POST /users/:id/roles, DELETE /users/:id/roles/:role."
+    },
+    {
+      "id": "file:users-service",
+      "label": "users.service.ts",
+      "type": "FILE",
+      "community": "users-module",
+      "path": "src/modules/users/users.service.ts",
+      "exports": ["UsersService"],
+      "description": "Users business logic: CRUD operations, role assignment, password hashing via bcrypt."
+    },
+    {
+      "id": "file:users-module",
+      "label": "users.module.ts",
+      "type": "FILE",
+      "community": "users-module",
+      "path": "src/modules/users/users.module.ts",
+      "exports": ["UsersModule"],
+      "description": "Users NestJS module."
+    },
+    {
+      "id": "file:pages-controller",
+      "label": "pages.controller.ts",
+      "type": "FILE",
+      "community": "pages-module",
+      "path": "src/modules/pages/pages.controller.ts",
+      "exports": ["PagesController", "PublicPagesController"],
+      "description": "Pages controllers. Admin: full CRUD + publish/unpublish/duplicate/syncBlocks. Public: GET /public/pages/:slug."
+    },
+    {
+      "id": "file:pages-service",
+      "label": "pages.service.ts",
+      "type": "FILE",
+      "community": "pages-module",
+      "path": "src/modules/pages/pages.service.ts",
+      "exports": ["PagesService"],
+      "description": "Pages business logic: CRUD, publish/unpublish, duplicate, public by slug. Uses PrismaService."
+    },
+    {
+      "id": "file:pages-module",
+      "label": "pages.module.ts",
+      "type": "FILE",
+      "community": "pages-module",
+      "path": "src/modules/pages/pages.module.ts",
+      "exports": ["PagesModule"],
+      "description": "Pages NestJS module. Registers PagesController, PublicPagesController, PagesService, and BlocksService."
+    },
+    {
+      "id": "file:blocks-service",
+      "label": "blocks/blocks.service.ts",
+      "type": "FILE",
+      "community": "pages-module",
+      "path": "src/modules/pages/blocks/blocks.service.ts",
+      "exports": ["BlocksService"],
+      "description": "Block operations for pages: getBlocks and syncBlocks (transactional delete+create)."
+    },
+    {
+      "id": "file:posts-controller",
+      "label": "posts.controller.ts",
+      "type": "FILE",
+      "community": "posts-module",
+      "path": "src/modules/posts/posts.controller.ts",
+      "exports": ["PostsController", "PublicPostsController"],
+      "description": "Posts controllers. Admin: CRUD + publish/unpublish/blocks. Public: list published, get by slug, engagement (views/likes/comments)."
+    },
+    {
+      "id": "file:posts-service",
+      "label": "posts.service.ts",
+      "type": "FILE",
+      "community": "posts-module",
+      "path": "src/modules/posts/posts.service.ts",
+      "exports": ["PostsService"],
+      "description": "Posts business logic: CRUD, publish, listPublicPosts with filters, engagement tracking, comment creation."
+    },
+    {
+      "id": "file:posts-module",
+      "label": "posts.module.ts",
+      "type": "FILE",
+      "community": "posts-module",
+      "path": "src/modules/posts/posts.module.ts",
+      "exports": ["PostsModule"],
+      "description": "Posts NestJS module."
+    },
+    {
+      "id": "file:categories-controller",
+      "label": "categories.controller.ts",
+      "type": "FILE",
+      "community": "categories-module",
+      "path": "src/modules/categories/categories.controller.ts",
+      "exports": ["CategoriesController", "PublicCategoriesController"],
+      "description": "Categories controllers. Admin: CRUD. Public: tree and by slug."
+    },
+    {
+      "id": "file:categories-service",
+      "label": "categories.service.ts",
+      "type": "FILE",
+      "community": "categories-module",
+      "path": "src/modules/categories/categories.service.ts",
+      "exports": ["CategoriesService"],
+      "description": "Categories business logic: CRUD, tree structure, public by slug."
+    },
+    {
+      "id": "file:categories-module",
+      "label": "categories.module.ts",
+      "type": "FILE",
+      "community": "categories-module",
+      "path": "src/modules/categories/categories.module.ts",
+      "exports": ["CategoriesModule"],
+      "description": "Categories NestJS module."
+    },
+    {
+      "id": "file:menus-controller",
+      "label": "menus.controller.ts",
+      "type": "FILE",
+      "community": "menus-module",
+      "path": "src/modules/menus/menus.controller.ts",
+      "exports": ["MenusController", "PublicMenusController"],
+      "description": "Menus controllers. Admin: CRUD + syncItems (bulk). Public: GET /public/menus/:location."
+    },
+    {
+      "id": "file:menus-service",
+      "label": "menus.service.ts",
+      "type": "FILE",
+      "community": "menus-module",
+      "path": "src/modules/menus/menus.service.ts",
+      "exports": ["MenusService"],
+      "description": "Menus business logic: CRUD, syncItems (transactional), findPublicByLocation."
+    },
+    {
+      "id": "file:menus-module",
+      "label": "menus.module.ts",
+      "type": "FILE",
+      "community": "menus-module",
+      "path": "src/modules/menus/menus.module.ts",
+      "exports": ["MenusModule"],
+      "description": "Menus NestJS module."
+    },
+    {
+      "id": "file:media-controller",
+      "label": "media.controller.ts",
+      "type": "FILE",
+      "community": "media-module",
+      "path": "src/modules/media/media.controller.ts",
+      "exports": ["MediaController"],
+      "description": "Media controller. Handles multipart file upload (multer, disk storage), list, get, update metadata, delete."
+    },
+    {
+      "id": "file:media-service",
+      "label": "media.service.ts",
+      "type": "FILE",
+      "community": "media-module",
+      "path": "src/modules/media/media.service.ts",
+      "exports": ["MediaService", "UploadedFileInfo"],
+      "description": "Media business logic: upload (store file, create DB record), list, get, update alt/caption, delete (file + DB)."
+    },
+    {
+      "id": "file:media-module",
+      "label": "media.module.ts",
+      "type": "FILE",
+      "community": "media-module",
+      "path": "src/modules/media/media.module.ts",
+      "exports": ["MediaModule"],
+      "description": "Media NestJS module. Registers MulterModule."
+    },
+    {
+      "id": "file:settings-controller",
+      "label": "settings.controller.ts",
+      "type": "FILE",
+      "community": "settings-module",
+      "path": "src/modules/settings/settings.controller.ts",
+      "exports": ["SettingsController"],
+      "description": "Site settings controller. GET /settings (public), PATCH /settings (admin with permission)."
+    },
+    {
+      "id": "file:settings-service",
+      "label": "settings.service.ts",
+      "type": "FILE",
+      "community": "settings-module",
+      "path": "src/modules/settings/settings.service.ts",
+      "exports": ["SettingsService", "UpdateSettingsDto"],
+      "description": "Site settings business logic: upsert-one pattern for SiteSetting record."
+    },
+    {
+      "id": "file:settings-module",
+      "label": "settings.module.ts",
+      "type": "FILE",
+      "community": "settings-module",
+      "path": "src/modules/settings/settings.module.ts",
+      "exports": ["SettingsModule"],
+      "description": "Settings NestJS module."
+    },
+    {
+      "id": "file:messaging-module",
+      "label": "messaging.module.ts",
+      "type": "FILE",
+      "community": "messaging-module",
+      "path": "src/modules/messaging/messaging.module.ts",
+      "exports": ["MessagingModule"],
+      "description": "Messaging NestJS module wiring Campaigns, Subscribers, Templates controllers and services."
+    },
+    {
+      "id": "file:campaigns-controller",
+      "label": "campaigns.controller.ts",
+      "type": "FILE",
+      "community": "messaging-module",
+      "path": "src/modules/messaging/campaigns.controller.ts",
+      "exports": ["CampaignsController"],
+      "description": "Campaigns controller: CRUD + /send + /cancel + /stats. All endpoints require JWT + permission."
+    },
+    {
+      "id": "file:campaigns-service",
+      "label": "campaigns.service.ts",
+      "type": "FILE",
+      "community": "messaging-module",
+      "path": "src/modules/messaging/campaigns.service.ts",
+      "exports": ["CampaignsService"],
+      "description": "Campaign business logic: create, send (dispatches to platform provider), cancel, stats aggregation."
+    },
+    {
+      "id": "file:subscribers-controller",
+      "label": "subscribers.controller.ts",
+      "type": "FILE",
+      "community": "messaging-module",
+      "path": "src/modules/messaging/subscribers.controller.ts",
+      "exports": ["SubscribersController"],
+      "description": "Subscribers controller: CRUD + bulk import + tags list."
+    },
+    {
+      "id": "file:subscribers-service",
+      "label": "subscribers.service.ts",
+      "type": "FILE",
+      "community": "messaging-module",
+      "path": "src/modules/messaging/subscribers.service.ts",
+      "exports": ["SubscribersService"],
+      "description": "Subscribers business logic: CRUD, bulk import (upsert by phone/zaloUserId), getTags."
+    },
+    {
+      "id": "file:templates-controller",
+      "label": "templates.controller.ts",
+      "type": "FILE",
+      "community": "messaging-module",
+      "path": "src/modules/messaging/templates.controller.ts",
+      "exports": ["TemplatesController"],
+      "description": "Message templates controller: CRUD with platform filter."
+    },
+    {
+      "id": "file:templates-service",
+      "label": "templates.service.ts",
+      "type": "FILE",
+      "community": "messaging-module",
+      "path": "src/modules/messaging/templates.service.ts",
+      "exports": ["TemplatesService"],
+      "description": "Message templates business logic."
+    },
+    {
+      "id": "file:messaging-providers",
+      "label": "messaging/providers/",
+      "type": "FILE",
+      "community": "messaging-module",
+      "path": "src/modules/messaging/providers/",
+      "exports": ["ZaloProvider", "FacebookProvider"],
+      "description": "Platform-specific message delivery providers for Zalo OA and Facebook Messenger."
+    },
+    {
+      "id": "file:promotions-controller",
+      "label": "promotions.controller.ts",
+      "type": "FILE",
+      "community": "promotions-module",
+      "path": "src/modules/promotions/promotions.controller.ts",
+      "exports": ["PromotionsController", "PublicPromotionsController"],
+      "description": "Promotions controllers. Admin: CRUD + activate/deactivate. Public: GET /public/promotions/active."
+    },
+    {
+      "id": "file:promotions-service",
+      "label": "promotions.service.ts",
+      "type": "FILE",
+      "community": "promotions-module",
+      "path": "src/modules/promotions/promotions.service.ts",
+      "exports": ["PromotionsService"],
+      "description": "Promotions business logic: CRUD, activate (deactivates all others first), deactivate, findActive."
+    },
+    {
+      "id": "file:promotions-module",
+      "label": "promotions.module.ts",
+      "type": "FILE",
+      "community": "promotions-module",
+      "path": "src/modules/promotions/promotions.module.ts",
+      "exports": ["PromotionsModule"],
+      "description": "Promotions NestJS module."
+    },
+    {
+      "id": "file:locations-controller",
+      "label": "locations.controller.ts",
+      "type": "FILE",
+      "community": "locations-module",
+      "path": "src/modules/locations/locations.controller.ts",
+      "exports": ["LocationsController", "PublicLocationsController"],
+      "description": "Locations controllers. Admin: CRUD. Public: GET /public/locations (active only)."
+    },
+    {
+      "id": "file:locations-service",
+      "label": "locations.service.ts",
+      "type": "FILE",
+      "community": "locations-module",
+      "path": "src/modules/locations/locations.service.ts",
+      "exports": ["LocationsService"],
+      "description": "Locations business logic: CRUD, findActive (isActive=true, ordered)."
+    },
+    {
+      "id": "file:locations-module",
+      "label": "locations.module.ts",
+      "type": "FILE",
+      "community": "locations-module",
+      "path": "src/modules/locations/locations.module.ts",
+      "exports": ["LocationsModule"],
+      "description": "Locations NestJS module."
+    },
+    {
+      "id": "file:revalidation-module",
+      "label": "revalidation.module.ts",
+      "type": "FILE",
+      "community": "common",
+      "path": "src/modules/revalidation/revalidation.module.ts",
+      "exports": ["RevalidationModule"],
+      "description": "Revalidation NestJS module for triggering Next.js ISR cache revalidation."
+    },
+    {
+      "id": "file:revalidation-service",
+      "label": "revalidation.service.ts",
+      "type": "FILE",
+      "community": "common",
+      "path": "src/modules/revalidation/revalidation.service.ts",
+      "exports": ["RevalidationService"],
+      "description": "Calls the Next.js /api/revalidate endpoint with a secret to invalidate ISR cache on content changes."
+    },
+    {
+      "id": "model:User",
+      "label": "User",
+      "type": "MODEL",
+      "community": "users-module",
+      "path": "prisma/schema.prisma",
+      "exports": [],
+      "description": "User model: id, email, passwordHash, firstName, lastName, status (ACTIVE/INACTIVE/SUSPENDED), avatar. Relations: UserRole, RefreshToken, Page, Post, Media, MessageCampaign."
+    },
+    {
+      "id": "model:Role",
+      "label": "Role",
+      "type": "MODEL",
+      "community": "auth-module",
+      "path": "prisma/schema.prisma",
+      "exports": [],
+      "description": "Role model: id, name (ADMIN/EDITOR/AUTHOR). Relations: UserRole, RolePermission."
+    },
+    {
+      "id": "model:Permission",
+      "label": "Permission",
+      "type": "MODEL",
+      "community": "auth-module",
+      "path": "prisma/schema.prisma",
+      "exports": [],
+      "description": "Permission model: id, action string (e.g. 'pages:create'). Relations: RolePermission."
+    },
+    {
+      "id": "model:RefreshToken",
+      "label": "RefreshToken",
+      "type": "MODEL",
+      "community": "auth-module",
+      "path": "prisma/schema.prisma",
+      "exports": [],
+      "description": "Hashed refresh token stored in DB. Has userId, expiresAt, revokedAt for token rotation pattern."
+    },
+    {
+      "id": "model:Media",
+      "label": "Media",
+      "type": "MODEL",
+      "community": "media-module",
+      "path": "prisma/schema.prisma",
+      "exports": [],
+      "description": "Media file record: storageKey, url, mimeType, size, dimensions. Back-referenced by Pages, Posts, Categories, Users, SiteSettings."
+    },
+    {
+      "id": "model:Page",
+      "label": "Page",
+      "type": "MODEL",
+      "community": "pages-module",
+      "path": "prisma/schema.prisma",
+      "exports": [],
+      "description": "CMS page: title, slug (unique), status (DRAFT/PUBLISHED/ARCHIVED), SEO fields, version. Has PageBlock children."
+    },
+    {
+      "id": "model:PageBlock",
+      "label": "PageBlock",
+      "type": "MODEL",
+      "community": "pages-module",
+      "path": "prisma/schema.prisma",
+      "exports": [],
+      "description": "Block belonging to a Page: type (HERO/BANNER/RICH_TEXT/IMAGE/CTA/FAQ), order, data (JSONB), schemaVersion."
+    },
+    {
+      "id": "model:Post",
+      "label": "Post",
+      "type": "MODEL",
+      "community": "posts-module",
+      "path": "prisma/schema.prisma",
+      "exports": [],
+      "description": "Blog post: title, slug, status, featuredImage, author, viewCount, likeCount. Has PostBlock, PostCategory, PostComment children."
+    },
+    {
+      "id": "model:PostBlock",
+      "label": "PostBlock",
+      "type": "MODEL",
+      "community": "posts-module",
+      "path": "prisma/schema.prisma",
+      "exports": [],
+      "description": "Block belonging to a Post (same schema as PageBlock)."
+    },
+    {
+      "id": "model:PostComment",
+      "label": "PostComment",
+      "type": "MODEL",
+      "community": "posts-module",
+      "path": "prisma/schema.prisma",
+      "exports": [],
+      "description": "Public comment on a Post: name, text, createdAt. No auth required to submit."
+    },
+    {
+      "id": "model:Category",
+      "label": "Category",
+      "type": "MODEL",
+      "community": "categories-module",
+      "path": "prisma/schema.prisma",
+      "exports": [],
+      "description": "Blog category: name, slug, self-referencing parentId for tree structure. Has PostCategory many-to-many."
+    },
+    {
+      "id": "model:Menu",
+      "label": "Menu",
+      "type": "MODEL",
+      "community": "menus-module",
+      "path": "prisma/schema.prisma",
+      "exports": [],
+      "description": "Navigation menu: name, location (HEADER/FOOTER/SIDEBAR/CUSTOM). One menu per location enforced by unique constraint."
+    },
+    {
+      "id": "model:MenuItem",
+      "label": "MenuItem",
+      "type": "MODEL",
+      "community": "menus-module",
+      "path": "prisma/schema.prisma",
+      "exports": [],
+      "description": "Menu item with self-referencing parentId for nested menus. Can reference page, post, category, or customUrl."
+    },
+    {
+      "id": "model:Subscriber",
+      "label": "Subscriber",
+      "type": "MODEL",
+      "community": "messaging-module",
+      "path": "prisma/schema.prisma",
+      "exports": [],
+      "description": "Messaging subscriber: name, phone, email, zaloUserId, facebookPsid, tags array, isActive."
+    },
+    {
+      "id": "model:MessageCampaign",
+      "label": "MessageCampaign",
+      "type": "MODEL",
+      "community": "messaging-module",
+      "path": "prisma/schema.prisma",
+      "exports": [],
+      "description": "Message campaign: title, platform (ZALO/FACEBOOK), status (DRAFT→QUEUED→SENDING→COMPLETED), content JSON, targetTags filter, delivery counters."
+    },
+    {
+      "id": "model:MessageRecipient",
+      "label": "MessageRecipient",
+      "type": "MODEL",
+      "community": "messaging-module",
+      "path": "prisma/schema.prisma",
+      "exports": [],
+      "description": "Join table between MessageCampaign and Subscriber tracking per-message delivery status."
+    },
+    {
+      "id": "model:MessageTemplate",
+      "label": "MessageTemplate",
+      "type": "MODEL",
+      "community": "messaging-module",
+      "path": "prisma/schema.prisma",
+      "exports": [],
+      "description": "Reusable message template: name, platform, messageType, content JSON."
+    },
+    {
+      "id": "model:PromotionBanner",
+      "label": "PromotionBanner",
+      "type": "MODEL",
+      "community": "promotions-module",
+      "path": "prisma/schema.prisma",
+      "exports": [],
+      "description": "Promotion countdown banner: headline, badgeText, CTA, gradient styles, endsAt datetime, isActive flag."
+    },
+    {
+      "id": "model:SiteSetting",
+      "label": "SiteSetting",
+      "type": "MODEL",
+      "community": "settings-module",
+      "path": "prisma/schema.prisma",
+      "exports": [],
+      "description": "Singleton site settings: siteName, description, logo/favicon (Media FK), default SEO, socialLinks JSON."
+    },
+    {
+      "id": "model:Location",
+      "label": "Location",
+      "type": "MODEL",
+      "community": "locations-module",
+      "path": "prisma/schema.prisma",
+      "exports": [],
+      "description": "Gym branch location: name, slug, address, phone, email, lat/lng coordinates, isActive, order."
+    },
+    {
+      "id": "endpoint:POST/auth/login",
+      "label": "POST /auth/login",
+      "type": "ENDPOINT",
+      "community": "auth-module",
+      "path": "src/modules/auth/auth.controller.ts",
+      "exports": [],
+      "description": "Public. Login with email+password. Returns accessToken + user profile. Sets HttpOnly refresh cookie."
+    },
+    {
+      "id": "endpoint:POST/auth/refresh",
+      "label": "POST /auth/refresh",
+      "type": "ENDPOINT",
+      "community": "auth-module",
+      "path": "src/modules/auth/auth.controller.ts",
+      "exports": [],
+      "description": "Public (uses JwtRefreshGuard). Rotates refresh token from HttpOnly cookie. Returns new accessToken."
+    },
+    {
+      "id": "endpoint:POST/auth/logout",
+      "label": "POST /auth/logout",
+      "type": "ENDPOINT",
+      "community": "auth-module",
+      "path": "src/modules/auth/auth.controller.ts",
+      "exports": [],
+      "description": "Auth required. Revokes refresh token in DB and clears cookie."
+    },
+    {
+      "id": "endpoint:GET/auth/me",
+      "label": "GET /auth/me",
+      "type": "ENDPOINT",
+      "community": "auth-module",
+      "path": "src/modules/auth/auth.controller.ts",
+      "exports": [],
+      "description": "Auth required. Returns current user profile with roles and permissions."
+    },
+    {
+      "id": "endpoint:GET/public/locations",
+      "label": "GET /public/locations",
+      "type": "ENDPOINT",
+      "community": "locations-module",
+      "path": "src/modules/locations/locations.controller.ts",
+      "exports": [],
+      "description": "Public. Returns all active gym locations ordered by sort order."
+    },
+    {
+      "id": "endpoint:GET/public/posts",
+      "label": "GET /public/posts",
+      "type": "ENDPOINT",
+      "community": "posts-module",
+      "path": "src/modules/posts/posts.controller.ts",
+      "exports": [],
+      "description": "Public. Paginated published posts with optional categorySlug and search filters."
+    },
+    {
+      "id": "endpoint:GET/public/posts/:slug",
+      "label": "GET /public/posts/:slug",
+      "type": "ENDPOINT",
+      "community": "posts-module",
+      "path": "src/modules/posts/posts.controller.ts",
+      "exports": [],
+      "description": "Public. Full post detail with blocks, categories, author, SEO fields."
+    },
+    {
+      "id": "endpoint:POST/public/posts/:slug/views",
+      "label": "POST /public/posts/:slug/views",
+      "type": "ENDPOINT",
+      "community": "posts-module",
+      "path": "src/modules/posts/posts.controller.ts",
+      "exports": [],
+      "description": "Public. Increments post viewCount."
+    },
+    {
+      "id": "endpoint:POST/public/posts/:slug/likes",
+      "label": "POST /public/posts/:slug/likes",
+      "type": "ENDPOINT",
+      "community": "posts-module",
+      "path": "src/modules/posts/posts.controller.ts",
+      "exports": [],
+      "description": "Public. Increments post likeCount."
+    },
+    {
+      "id": "endpoint:GET/public/promotions/active",
+      "label": "GET /public/promotions/active",
+      "type": "ENDPOINT",
+      "community": "promotions-module",
+      "path": "src/modules/promotions/promotions.controller.ts",
+      "exports": [],
+      "description": "Public. Returns the single active PromotionBanner (isActive=true)."
+    },
+    {
+      "id": "endpoint:GET/public/pages/:slug",
+      "label": "GET /public/pages/:slug",
+      "type": "ENDPOINT",
+      "community": "pages-module",
+      "path": "src/modules/pages/pages.controller.ts",
+      "exports": [],
+      "description": "Public. Returns a published page by slug with blocks."
+    },
+    {
+      "id": "endpoint:GET/public/categories",
+      "label": "GET /public/categories",
+      "type": "ENDPOINT",
+      "community": "categories-module",
+      "path": "src/modules/categories/categories.controller.ts",
+      "exports": [],
+      "description": "Public. Returns the category tree."
+    },
+    {
+      "id": "endpoint:GET/public/menus/:location",
+      "label": "GET /public/menus/:location",
+      "type": "ENDPOINT",
+      "community": "menus-module",
+      "path": "src/modules/menus/menus.controller.ts",
+      "exports": [],
+      "description": "Public. Returns menu with nested items by location enum."
+    },
+    {
+      "id": "endpoint:POST/messaging/campaigns/:id/send",
+      "label": "POST /messaging/campaigns/:id/send",
+      "type": "ENDPOINT",
+      "community": "messaging-module",
+      "path": "src/modules/messaging/campaigns.controller.ts",
+      "exports": [],
+      "description": "Auth+permission:messages:send. Triggers message delivery to all matching subscribers."
+    }
+  ],
+  "edges": [
+    { "source": "file:main", "target": "file:app-module", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:main", "target": "file:all-exceptions-filter", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:main", "target": "file:logging-interceptor", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:main", "target": "file:jwt-auth-guard", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:main", "target": "file:permissions-guard", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:app-module", "target": "file:database-module", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:app-module", "target": "file:auth-module", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:app-module", "target": "file:users-module", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:app-module", "target": "file:pages-module", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:app-module", "target": "file:posts-module", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:app-module", "target": "file:categories-module", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:app-module", "target": "file:menus-module", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:app-module", "target": "file:media-module", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:app-module", "target": "file:settings-module", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:app-module", "target": "file:messaging-module", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:app-module", "target": "file:promotions-module", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:app-module", "target": "file:locations-module", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:app-module", "target": "file:revalidation-module", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:app-module", "target": "file:configuration", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:database-module", "target": "file:prisma-service", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:auth-controller", "target": "file:auth-service", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:auth-controller", "target": "file:jwt-auth-guard", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:auth-controller", "target": "file:jwt-refresh-guard", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:auth-controller", "target": "file:public-decorator", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:auth-controller", "target": "file:current-user-decorator", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:auth-controller", "target": "file:jwt-payload-type", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:auth-service", "target": "file:prisma-service", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:auth-service", "target": "file:jwt-payload-type", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:auth-service", "target": "file:configuration", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:auth-service", "target": "model:User", "type": "CALLS", "confidence": 1.0, "note": "prisma.user.findUnique for login" },
+    { "source": "file:auth-service", "target": "model:RefreshToken", "type": "CALLS", "confidence": 1.0, "note": "create/update/updateMany refresh tokens" },
+    { "source": "file:jwt-auth-guard", "target": "file:public-decorator", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:permissions-guard", "target": "file:require-permissions-decorator", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:permissions-guard", "target": "file:jwt-payload-type", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:users-controller", "target": "file:users-service", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:users-controller", "target": "file:jwt-auth-guard", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:users-controller", "target": "file:permissions-guard", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:users-controller", "target": "file:require-permissions-decorator", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:users-service", "target": "file:prisma-service", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:users-service", "target": "model:User", "type": "CALLS", "confidence": 1.0 },
+    { "source": "file:pages-controller", "target": "file:pages-service", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:pages-controller", "target": "file:blocks-service", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:pages-controller", "target": "file:jwt-auth-guard", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:pages-controller", "target": "file:permissions-guard", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:pages-controller", "target": "file:public-decorator", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:pages-controller", "target": "file:require-permissions-decorator", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:pages-service", "target": "file:prisma-service", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:pages-service", "target": "model:Page", "type": "CALLS", "confidence": 1.0 },
+    { "source": "file:blocks-service", "target": "file:prisma-service", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:blocks-service", "target": "model:PageBlock", "type": "CALLS", "confidence": 1.0 },
+    { "source": "file:posts-controller", "target": "file:posts-service", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:posts-controller", "target": "file:jwt-auth-guard", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:posts-controller", "target": "file:permissions-guard", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:posts-controller", "target": "file:public-decorator", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:posts-controller", "target": "file:require-permissions-decorator", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:posts-service", "target": "file:prisma-service", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:posts-service", "target": "model:Post", "type": "CALLS", "confidence": 1.0 },
+    { "source": "file:posts-service", "target": "model:PostComment", "type": "CALLS", "confidence": 1.0 },
+    { "source": "file:categories-controller", "target": "file:categories-service", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:categories-controller", "target": "file:jwt-auth-guard", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:categories-controller", "target": "file:public-decorator", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:categories-controller", "target": "file:require-permissions-decorator", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:categories-service", "target": "file:prisma-service", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:categories-service", "target": "model:Category", "type": "CALLS", "confidence": 1.0 },
+    { "source": "file:menus-controller", "target": "file:menus-service", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:menus-controller", "target": "file:jwt-auth-guard", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:menus-controller", "target": "file:public-decorator", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:menus-controller", "target": "file:require-permissions-decorator", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:menus-service", "target": "file:prisma-service", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:menus-service", "target": "model:Menu", "type": "CALLS", "confidence": 1.0 },
+    { "source": "file:menus-service", "target": "model:MenuItem", "type": "CALLS", "confidence": 1.0 },
+    { "source": "file:media-controller", "target": "file:media-service", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:media-controller", "target": "file:jwt-auth-guard", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:media-controller", "target": "file:require-permissions-decorator", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:media-service", "target": "file:prisma-service", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:media-service", "target": "model:Media", "type": "CALLS", "confidence": 1.0 },
+    { "source": "file:settings-controller", "target": "file:settings-service", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:settings-controller", "target": "file:public-decorator", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:settings-controller", "target": "file:jwt-auth-guard", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:settings-service", "target": "file:prisma-service", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:settings-service", "target": "model:SiteSetting", "type": "CALLS", "confidence": 1.0 },
+    { "source": "file:campaigns-controller", "target": "file:campaigns-service", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:campaigns-controller", "target": "file:jwt-auth-guard", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:campaigns-controller", "target": "file:require-permissions-decorator", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:campaigns-service", "target": "file:prisma-service", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:campaigns-service", "target": "model:MessageCampaign", "type": "CALLS", "confidence": 1.0 },
+    { "source": "file:campaigns-service", "target": "model:MessageRecipient", "type": "CALLS", "confidence": 1.0 },
+    { "source": "file:campaigns-service", "target": "file:messaging-providers", "type": "CALLS", "confidence": 0.9 },
+    { "source": "file:subscribers-controller", "target": "file:subscribers-service", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:subscribers-service", "target": "file:prisma-service", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:subscribers-service", "target": "model:Subscriber", "type": "CALLS", "confidence": 1.0 },
+    { "source": "file:templates-controller", "target": "file:templates-service", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:templates-service", "target": "file:prisma-service", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:templates-service", "target": "model:MessageTemplate", "type": "CALLS", "confidence": 1.0 },
+    { "source": "file:promotions-controller", "target": "file:promotions-service", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:promotions-controller", "target": "file:jwt-auth-guard", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:promotions-controller", "target": "file:public-decorator", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:promotions-controller", "target": "file:require-permissions-decorator", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:promotions-service", "target": "file:prisma-service", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:promotions-service", "target": "model:PromotionBanner", "type": "CALLS", "confidence": 1.0 },
+    { "source": "file:locations-controller", "target": "file:locations-service", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:locations-controller", "target": "file:jwt-auth-guard", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:locations-controller", "target": "file:public-decorator", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:locations-controller", "target": "file:require-permissions-decorator", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:locations-service", "target": "file:prisma-service", "type": "IMPORTS", "confidence": 1.0 },
+    { "source": "file:locations-service", "target": "model:Location", "type": "CALLS", "confidence": 1.0 },
+    { "source": "endpoint:POST/auth/login", "target": "file:auth-controller", "type": "DEFINES", "confidence": 1.0 },
+    { "source": "endpoint:POST/auth/refresh", "target": "file:auth-controller", "type": "DEFINES", "confidence": 1.0 },
+    { "source": "endpoint:POST/auth/logout", "target": "file:auth-controller", "type": "DEFINES", "confidence": 1.0 },
+    { "source": "endpoint:GET/auth/me", "target": "file:auth-controller", "type": "DEFINES", "confidence": 1.0 },
+    { "source": "endpoint:POST/auth/refresh", "target": "file:jwt-refresh-guard", "type": "AUTH_GUARDS", "confidence": 1.0 },
+    { "source": "endpoint:POST/auth/logout", "target": "file:jwt-auth-guard", "type": "AUTH_GUARDS", "confidence": 1.0 },
+    { "source": "endpoint:GET/auth/me", "target": "file:jwt-auth-guard", "type": "AUTH_GUARDS", "confidence": 1.0 },
+    { "source": "endpoint:GET/public/locations", "target": "file:locations-controller", "type": "DEFINES", "confidence": 1.0 },
+    { "source": "endpoint:GET/public/posts", "target": "file:posts-controller", "type": "DEFINES", "confidence": 1.0 },
+    { "source": "endpoint:GET/public/posts/:slug", "target": "file:posts-controller", "type": "DEFINES", "confidence": 1.0 },
+    { "source": "endpoint:GET/public/promotions/active", "target": "file:promotions-controller", "type": "DEFINES", "confidence": 1.0 },
+    { "source": "endpoint:GET/public/pages/:slug", "target": "file:pages-controller", "type": "DEFINES", "confidence": 1.0 },
+    { "source": "endpoint:GET/public/categories", "target": "file:categories-controller", "type": "DEFINES", "confidence": 1.0 },
+    { "source": "endpoint:GET/public/menus/:location", "target": "file:menus-controller", "type": "DEFINES", "confidence": 1.0 },
+    { "source": "endpoint:POST/messaging/campaigns/:id/send", "target": "file:campaigns-controller", "type": "DEFINES", "confidence": 1.0 },
+    { "source": "endpoint:POST/messaging/campaigns/:id/send", "target": "file:jwt-auth-guard", "type": "AUTH_GUARDS", "confidence": 1.0 },
+    { "source": "endpoint:POST/messaging/campaigns/:id/send", "target": "file:permissions-guard", "type": "AUTH_GUARDS", "confidence": 1.0 },
+    { "source": "file:revalidation-service", "target": "file:prisma-service", "type": "IMPORTS", "confidence": 0.7 },
+    { "source": "file:pages-service", "target": "file:revalidation-service", "type": "CALLS", "confidence": 0.8, "note": "Triggers ISR revalidation after publish" },
+    { "source": "file:posts-service", "target": "file:revalidation-service", "type": "CALLS", "confidence": 0.8, "note": "Triggers ISR revalidation after publish" }
+  ],
+  "communities": [
+    {
+      "id": "common",
+      "label": "Common / Infrastructure",
+      "description": "Bootstrap (main.ts), AppModule, configuration, global filters, interceptors, guards, decorators, revalidation.",
+      "node_count": 12,
+      "cohesion": 0.75
+    },
+    {
+      "id": "database",
+      "label": "Database Layer",
+      "description": "PrismaService, DatabaseModule, and the Prisma schema file (single source of truth for all models).",
+      "node_count": 3,
+      "cohesion": 1.0
+    },
+    {
+      "id": "auth-module",
+      "label": "Auth Module",
+      "description": "Login, refresh token rotation (HttpOnly cookie), logout, profile, JWT strategies, Role/Permission models.",
+      "node_count": 9,
+      "cohesion": 0.92
+    },
+    {
+      "id": "users-module",
+      "label": "Users Module",
+      "description": "User CRUD and role assignment. User model.",
+      "node_count": 4,
+      "cohesion": 0.88
+    },
+    {
+      "id": "pages-module",
+      "label": "Pages Module",
+      "description": "CMS page CRUD, publish/unpublish, duplicate, block sync. Page and PageBlock models.",
+      "node_count": 6,
+      "cohesion": 0.90
+    },
+    {
+      "id": "posts-module",
+      "label": "Posts Module",
+      "description": "Blog post CRUD, publish, public listing with filters, engagement tracking (views/likes/comments). Post, PostBlock, PostComment models.",
+      "node_count": 6,
+      "cohesion": 0.88
+    },
+    {
+      "id": "categories-module",
+      "label": "Categories Module",
+      "description": "Category tree management for posts. Category model with self-referencing parentId.",
+      "node_count": 4,
+      "cohesion": 0.88
+    },
+    {
+      "id": "menus-module",
+      "label": "Menus Module",
+      "description": "Navigation menu CRUD and bulk item sync. Menu, MenuItem models.",
+      "node_count": 5,
+      "cohesion": 0.88
+    },
+    {
+      "id": "media-module",
+      "label": "Media Module",
+      "description": "File upload (multer/disk), media library CRUD, static file serving. Media model.",
+      "node_count": 4,
+      "cohesion": 0.90
+    },
+    {
+      "id": "settings-module",
+      "label": "Settings Module",
+      "description": "Singleton site settings (upsert pattern). SiteSetting model.",
+      "node_count": 4,
+      "cohesion": 0.90
+    },
+    {
+      "id": "messaging-module",
+      "label": "Messaging Module",
+      "description": "Multi-platform message campaigns (Zalo/Facebook), subscriber management, message templates, delivery tracking.",
+      "node_count": 11,
+      "cohesion": 0.84
+    },
+    {
+      "id": "promotions-module",
+      "label": "Promotions Module",
+      "description": "Promotion countdown banner management. Activate/deactivate with exclusive active constraint. PromotionBanner model.",
+      "node_count": 4,
+      "cohesion": 0.90
+    },
+    {
+      "id": "locations-module",
+      "label": "Locations Module",
+      "description": "Gym branch location CRUD and public listing. Location model.",
+      "node_count": 4,
+      "cohesion": 0.90
+    }
+  ]
+}

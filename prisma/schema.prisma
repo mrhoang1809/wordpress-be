@@ -1,0 +1,584 @@
+// ============================================================
+// PRISMA SCHEMA PROPOSAL
+// CMS with Block-Based Page Builder
+// PostgreSQL + Prisma 6.x
+// ============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// ENUMS
+// ============================================================
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum RoleName {
+  ADMIN
+  EDITOR
+  AUTHOR
+}
+
+enum ContentStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum BlockType {
+  HERO
+  BANNER
+  RICH_TEXT
+  IMAGE
+  CTA
+  FAQ
+}
+
+enum MenuLocation {
+  HEADER
+  FOOTER
+  SIDEBAR
+  CUSTOM
+}
+
+enum MenuItemType {
+  PAGE
+  POST
+  CATEGORY
+  CUSTOM_URL
+}
+
+// ─── Messaging ──────────────────────────────────────────────────────────────────
+
+enum MessagePlatform {
+  ZALO
+  FACEBOOK
+}
+
+enum CampaignStatus {
+  DRAFT
+  QUEUED
+  SENDING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum DeliveryStatus {
+  PENDING
+  SENT
+  FAILED
+  DELIVERED
+  READ
+}
+
+// ============================================================
+// IDENTITY & PERMISSIONS
+// ============================================================
+
+model User {
+  id             String    @id @default(cuid())
+  email          String    @unique
+  passwordHash   String
+  firstName      String
+  lastName       String
+  status         UserStatus @default(ACTIVE)
+  avatarId       String?
+  avatar         Media?    @relation("UserAvatar", fields: [avatarId], references: [id], onDelete: SetNull)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  // Relations
+  userRoles      UserRole[]
+  refreshTokens  RefreshToken[]
+  pages          Page[]         @relation("PageAuthor")
+  posts          Post[]         @relation("PostAuthor")
+  media          Media[]        @relation("MediaUploader")
+  campaigns      MessageCampaign[] @relation("CampaignCreator")
+
+  @@index([email])
+  @@map("users")
+}
+
+model Role {
+  id          String   @id @default(cuid())
+  name        RoleName @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  userRoles        UserRole[]
+  rolePermissions  RolePermission[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id          String   @id @default(cuid())
+  action      String   // e.g. "pages:create", "pages:publish"
+  description String?
+  createdAt   DateTime @default(now())
+
+  rolePermissions RolePermission[]
+
+  @@unique([action])
+  @@map("permissions")
+}
+
+model UserRole {
+  userId    String
+  roleId    String
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      Role   @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([userId, roleId])
+  @@map("user_roles")
+}
+
+model RolePermission {
+  roleId       String
+  permissionId String
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+
+  @@id([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+model RefreshToken {
+  id          String   @id @default(cuid())
+  token       String   @unique // hashed
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt   DateTime
+  revokedAt   DateTime?
+  userAgent   String?
+  ipAddress   String?
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+  @@index([token])
+  @@map("refresh_tokens")
+}
+
+// ============================================================
+// MEDIA
+// ============================================================
+
+model Media {
+  id           String   @id @default(cuid())
+  storageKey   String   @unique // path within storage backend
+  url          String
+  mimeType     String
+  size         Int      // bytes
+  width        Int?
+  height       Int?
+  altText      String?
+  caption      String?
+  createdById  String
+  createdBy    User     @relation("MediaUploader", fields: [createdById], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Back-references
+  pages              Page[]     @relation("PageFeaturedImage")
+  posts              Post[]     @relation("PostFeaturedImage")
+  categories         Category[] @relation("CategoryImage")
+  userAvatars        User[]     @relation("UserAvatar")
+  siteSettingLogos   SiteSetting[] @relation("SiteLogoMedia")
+  siteSettingFavicons SiteSetting[] @relation("SiteFaviconMedia")
+
+  @@index([createdById])
+  @@map("media")
+}
+
+// ============================================================
+// PAGES
+// ============================================================
+
+model Page {
+  id               String        @id @default(cuid())
+  title            String
+  slug             String        @unique
+  excerpt          String?
+  status           ContentStatus @default(DRAFT)
+  featuredImageId  String?
+  featuredImage    Media?        @relation("PageFeaturedImage", fields: [featuredImageId], references: [id], onDelete: SetNull)
+  seoTitle         String?
+  seoDescription   String?
+  seoImage         String?       // URL override for OG image
+  createdById      String
+  createdBy        User          @relation("PageAuthor", fields: [createdById], references: [id])
+  publishedAt      DateTime?
+  version          Int           @default(1)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  blocks           PageBlock[]
+
+  @@index([slug])
+  @@index([status])
+  @@index([createdById])
+  @@map("pages")
+}
+
+model PageBlock {
+  id            String    @id @default(cuid()) // stable across reorders
+  pageId        String
+  page          Page      @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  type          BlockType
+  order         Int
+  data          Json      // validated JSONB per BlockType
+  schemaVersion Int       @default(1)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([pageId, order])
+  @@unique([pageId, id]) // ensure block belongs to exactly one page
+  @@map("page_blocks")
+}
+
+// ============================================================
+// POSTS
+// ============================================================
+
+model Post {
+  id               String        @id @default(cuid())
+  title            String
+  slug             String        @unique
+  excerpt          String?
+  status           ContentStatus @default(DRAFT)
+  featuredImageId  String?
+  featuredImage    Media?        @relation("PostFeaturedImage", fields: [featuredImageId], references: [id], onDelete: SetNull)
+  seoTitle         String?
+  seoDescription   String?
+  seoImage         String?
+  authorId         String
+  author           User          @relation("PostAuthor", fields: [authorId], references: [id])
+  publishedAt      DateTime?
+  viewCount        Int           @default(0)
+  likeCount        Int           @default(0)
+  version          Int           @default(1)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  blocks           PostBlock[]
+  postCategories   PostCategory[]
+  comments         PostComment[]
+
+  @@index([slug])
+  @@index([status])
+  @@index([authorId])
+  @@map("posts")
+}
+
+model PostBlock {
+  id            String    @id @default(cuid())
+  postId        String
+  post          Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  type          BlockType
+  order         Int
+  data          Json
+  schemaVersion Int       @default(1)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([postId, order])
+  @@map("post_blocks")
+}
+
+model PostComment {
+  id        String   @id @default(cuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  name      String
+  text      String
+  createdAt DateTime @default(now())
+
+  @@index([postId, createdAt])
+  @@map("post_comments")
+}
+
+// ============================================================
+// CATEGORIES
+// ============================================================
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?
+  imageId     String?
+  image       Media?    @relation("CategoryImage", fields: [imageId], references: [id], onDelete: SetNull)
+  parentId    String?
+  parent      Category? @relation("CategoryChildren", fields: [parentId], references: [id], onDelete: Restrict)
+  children    Category[] @relation("CategoryChildren")
+  order       Int       @default(0)
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  postCategories PostCategory[]
+
+  @@index([slug])
+  @@index([parentId])
+  @@map("categories")
+}
+
+model PostCategory {
+  postId     String
+  categoryId String
+  post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@id([postId, categoryId])
+  @@map("post_categories")
+}
+
+// ============================================================
+// MENUS
+// ============================================================
+
+model Menu {
+  id        String       @id @default(cuid())
+  name      String
+  location  MenuLocation
+  isActive  Boolean      @default(true)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  items     MenuItem[]
+
+  @@unique([location]) // one menu per location (can relax later)
+  @@map("menus")
+}
+
+model MenuItem {
+  id           String       @id @default(cuid())
+  menuId       String
+  menu         Menu         @relation(fields: [menuId], references: [id], onDelete: Cascade)
+  label        String
+  type         MenuItemType
+  parentId     String?
+  parent       MenuItem?    @relation("MenuItemChildren", fields: [parentId], references: [id], onDelete: Cascade)
+  children     MenuItem[]   @relation("MenuItemChildren")
+  order        Int          @default(0)
+  pageId       String?
+  postId       String?
+  categoryId   String?
+  customUrl    String?
+  openInNewTab Boolean      @default(false)
+  isActive     Boolean      @default(true)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@index([menuId, order])
+  @@index([parentId])
+  @@map("menu_items")
+}
+
+// ============================================================
+// MESSAGING — Subscribers, Campaigns, Templates
+// ============================================================
+
+model Subscriber {
+  id           String   @id @default(cuid())
+  name         String
+  phone        String?  @unique
+  email        String?
+  zaloUserId   String?  @unique // Zalo OA user ID
+  facebookPsid String?  @unique // Facebook Page-Scope ID
+  tags         String[] @default([]) // e.g. ["VIP", "Newsletter"]
+  isActive     Boolean  @default(true)
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  recipients   MessageRecipient[]
+
+  @@index([zaloUserId])
+  @@index([facebookPsid])
+  @@index([isActive])
+  @@map("subscribers")
+}
+
+model MessageCampaign {
+  id             String          @id @default(cuid())
+  title          String
+  platform       MessagePlatform
+  status         CampaignStatus  @default(DRAFT)
+  messageType    String          @default("text") // text, image, list, template
+  content        Json            // { text, imageUrl, link, buttons, ... }
+  targetTags     String[]        @default([]) // filter subscribers by tags
+  totalRecipients Int            @default(0)
+  sentCount       Int            @default(0)
+  failedCount     Int            @default(0)
+  scheduledAt    DateTime?
+  startedAt      DateTime?
+  completedAt    DateTime?
+  createdById    String
+  createdBy      User            @relation("CampaignCreator", fields: [createdById], references: [id])
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  recipients     MessageRecipient[]
+
+  @@index([status])
+  @@index([platform])
+  @@map("message_campaigns")
+}
+
+model MessageRecipient {
+  id           String         @id @default(cuid())
+  campaignId   String
+  campaign     MessageCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  subscriberId String
+  subscriber   Subscriber     @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+  status       DeliveryStatus @default(PENDING)
+  platformMessageId String?  // ID returned by Zalo/Facebook
+  errorMessage String?
+  sentAt       DateTime?
+  deliveredAt  DateTime?
+  createdAt    DateTime       @default(now())
+
+  @@unique([campaignId, subscriberId])
+  @@index([campaignId])
+  @@index([subscriberId])
+  @@map("message_recipients")
+}
+
+model MessageTemplate {
+  id           String          @id @default(cuid())
+  name          String
+  platform      MessagePlatform
+  messageType   String          @default("text")
+  content       Json            // validated template content
+  isActive      Boolean         @default(true)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@index([platform])
+  @@map("message_templates")
+}
+
+// ============================================================
+// PROMOTION / COUNTDOWN BANNERS
+// ============================================================
+
+model PromotionBanner {
+  id               String   @id @default(cuid())
+
+  // Display
+  badgeText        String   @default("Ưu Đãi Đặc Biệt")      // pill above headline
+  headline         String                                       // big bold title
+  description      String?                                      // paragraph below headline
+  ctaLabel         String   @default("Đăng ký ngay")           // button text
+  ctaSource        String   @default("Promotion Banner")        // analytics source tag
+
+  // Countdown
+  countdownLabel   String   @default("Chương trình kết thúc sau:")
+  endsAt           DateTime                                     // deadline for the timer
+
+  // Styling / colours (Tailwind class fragments or hex)
+  bgGradientFrom   String   @default("from-brand-900")
+  bgGradientVia    String   @default("via-brand-800")
+  bgGradientTo     String   @default("to-accent-magenta")
+  badgeBg          String   @default("bg-yellow-400")
+  badgeText2       String   @default("text-brand-900")          // badge foreground colour class
+
+  // Status
+  isActive         Boolean  @default(false)                     // only one should be active at a time
+  sortOrder        Int      @default(0)                         // future: multiple banners rotation
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([isActive])
+  @@map("promotion_banners")
+}
+
+// ============================================================
+// SETTINGS
+// ============================================================
+
+model SiteSetting {
+  id              String   @id @default(cuid())
+  siteName        String   @default("My CMS Site")
+  siteDescription String?
+  logoId          String?
+  logo            Media?   @relation("SiteLogoMedia", fields: [logoId], references: [id], onDelete: SetNull)
+  faviconId       String?
+  favicon         Media?   @relation("SiteFaviconMedia", fields: [faviconId], references: [id], onDelete: SetNull)
+  defaultSeoTitle       String?
+  defaultSeoDescription String?
+  defaultSeoImage       String?
+  socialLinks     Json?    // { twitter, facebook, instagram, linkedin, ... }
+
+  // ── Contact / Float buttons ─────────────────────────────────────────────────
+  hotline         String?  // e.g. "19006363"  — used for tel: link
+  zaloUrl         String?  // e.g. "https://zalo.me/19006363"
+  facebookUrl     String?  // e.g. "https://m.me/curvesvietnam"
+
+  // ── Trial registration notifications ───────────────────────────────────────
+  trialNotifyEmail String?  // email nhận thông báo đăng ký tập thử
+
+  updatedAt       DateTime @updatedAt
+
+  @@map("site_settings")
+}
+
+// ============================================================
+// TRIAL REGISTRATIONS
+// ============================================================
+
+model TrialRegistration {
+  id          String   @id @default(cuid())
+  name        String
+  phone       String
+  locationId  String?
+  source      String?  // analytics: which CTA triggered the modal
+  createdAt   DateTime @default(now())
+
+  location    Location? @relation(fields: [locationId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@map("trial_registrations")
+}
+
+// ============================================================
+// LOCATIONS / CHI NHÁNH
+// ============================================================
+
+model Location {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  address     String
+  phone       String?
+  email       String?
+  latitude    Float?
+  longitude   Float?
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  trialRegistrations TrialRegistration[]
+
+  @@index([slug])
+  @@index([isActive])
+  @@map("locations")
+}

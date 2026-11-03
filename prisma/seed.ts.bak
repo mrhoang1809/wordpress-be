@@ -1,0 +1,330 @@
+import { PrismaClient, RoleName } from '@prisma/client';
+import * as bcrypt from 'bcryptjs';
+
+const prisma = new PrismaClient();
+
+const ALL_PERMISSIONS = [
+  // Pages
+  { action: 'pages:list', description: 'List pages' },
+  { action: 'pages:read', description: 'Read a page' },
+  { action: 'pages:create', description: 'Create a page' },
+  { action: 'pages:update', description: 'Update a page' },
+  { action: 'pages:delete', description: 'Delete a page' },
+  { action: 'pages:publish', description: 'Publish / unpublish a page' },
+  // Posts
+  { action: 'posts:list', description: 'List posts' },
+  { action: 'posts:read', description: 'Read a post' },
+  { action: 'posts:create', description: 'Create a post' },
+  { action: 'posts:update', description: 'Update a post' },
+  { action: 'posts:delete', description: 'Delete a post' },
+  { action: 'posts:publish', description: 'Publish / unpublish a post' },
+  // Categories
+  { action: 'categories:list', description: 'List categories' },
+  { action: 'categories:read', description: 'Read a category' },
+  { action: 'categories:create', description: 'Create a category' },
+  { action: 'categories:update', description: 'Update a category' },
+  { action: 'categories:delete', description: 'Delete a category' },
+  // Menus
+  { action: 'menus:list', description: 'List menus' },
+  { action: 'menus:read', description: 'Read a menu' },
+  { action: 'menus:create', description: 'Create a menu' },
+  { action: 'menus:update', description: 'Update a menu' },
+  { action: 'menus:delete', description: 'Delete a menu' },
+  // Media
+  { action: 'media:list', description: 'List media' },
+  { action: 'media:read', description: 'Read media' },
+  { action: 'media:upload', description: 'Upload media' },
+  { action: 'media:update', description: 'Update media metadata' },
+  { action: 'media:delete', description: 'Delete media' },
+  // Users
+  { action: 'users:list', description: 'List users' },
+  { action: 'users:read', description: 'Read user' },
+  { action: 'users:create', description: 'Create user' },
+  { action: 'users:update', description: 'Update user' },
+  { action: 'users:delete', description: 'Delete user' },
+  { action: 'users:manage-roles', description: 'Manage user roles' },
+  // Settings
+  { action: 'settings:read', description: 'Read site settings' },
+  { action: 'settings:update', description: 'Update site settings' },
+  // Messaging — Campaigns
+  { action: 'messages:list', description: 'List message campaigns' },
+  { action: 'messages:read', description: 'Read a campaign' },
+  { action: 'messages:create', description: 'Create a campaign' },
+  { action: 'messages:update', description: 'Update a campaign' },
+  { action: 'messages:delete', description: 'Delete a campaign' },
+  { action: 'messages:send', description: 'Send / cancel a campaign' },
+  // Messaging — Subscribers
+  { action: 'subscribers:list', description: 'List subscribers' },
+  { action: 'subscribers:read', description: 'Read a subscriber' },
+  { action: 'subscribers:create', description: 'Create / import subscribers' },
+  { action: 'subscribers:update', description: 'Update a subscriber' },
+  { action: 'subscribers:delete', description: 'Delete a subscriber' },
+  // Promotions
+  { action: 'promotions:list', description: 'List promotion banners' },
+  { action: 'promotions:read', description: 'Read a promotion banner' },
+  { action: 'promotions:create', description: 'Create a promotion banner' },
+  { action: 'promotions:update', description: 'Update / activate a promotion banner' },
+  { action: 'promotions:delete', description: 'Delete a promotion banner' },
+];
+
+// Role → permissions mapping
+const ROLE_PERMISSIONS: Record<RoleName, string[]> = {
+  [RoleName.ADMIN]: ALL_PERMISSIONS.map((p) => p.action), // all permissions
+
+  [RoleName.EDITOR]: [
+    'pages:list', 'pages:read', 'pages:create', 'pages:update', 'pages:publish',
+    'posts:list', 'posts:read', 'posts:create', 'posts:update', 'posts:publish',
+    'categories:list', 'categories:read', 'categories:create', 'categories:update',
+    'menus:list', 'menus:read', 'menus:update',
+    'media:list', 'media:read', 'media:upload', 'media:update',
+    'messages:list', 'messages:read', 'messages:create', 'messages:update', 'messages:send',
+    'subscribers:list', 'subscribers:read', 'subscribers:create', 'subscribers:update',
+    'promotions:list', 'promotions:read', 'promotions:create', 'promotions:update',
+  ],
+
+  [RoleName.AUTHOR]: [
+    'posts:list', 'posts:read', 'posts:create', 'posts:update',
+    'media:list', 'media:read', 'media:upload',
+  ],
+};
+
+async function main() {
+  console.log('🌱 Seeding database...');
+
+  // ─── Permissions ──────────────────────────────────────────────────────────
+  console.log('Creating permissions...');
+  for (const perm of ALL_PERMISSIONS) {
+    await prisma.permission.upsert({
+      where: { action: perm.action },
+      update: { description: perm.description },
+      create: perm,
+    });
+  }
+
+  // ─── Roles ────────────────────────────────────────────────────────────────
+  console.log('Creating roles...');
+  for (const roleName of [RoleName.ADMIN, RoleName.EDITOR, RoleName.AUTHOR]) {
+    await prisma.role.upsert({
+      where: { name: roleName },
+      update: {},
+      create: { name: roleName, description: `${roleName} role` },
+    });
+  }
+
+  // ─── Role ↔ Permission assignments ────────────────────────────────────────
+  console.log('Assigning permissions to roles...');
+  for (const [roleName, permActions] of Object.entries(ROLE_PERMISSIONS)) {
+    const role = await prisma.role.findUnique({ where: { name: roleName as RoleName } });
+    if (!role) continue;
+
+    for (const action of permActions) {
+      const perm = await prisma.permission.findUnique({ where: { action } });
+      if (!perm) continue;
+
+      await prisma.rolePermission.upsert({
+        where: { roleId_permissionId: { roleId: role.id, permissionId: perm.id } },
+        update: {},
+        create: { roleId: role.id, permissionId: perm.id },
+      });
+    }
+  }
+
+  // ─── Admin user ───────────────────────────────────────────────────────────
+  console.log('Creating admin user...');
+  const adminRole = await prisma.role.findUnique({ where: { name: RoleName.ADMIN } });
+
+  const existingAdmin = await prisma.user.findUnique({ where: { email: 'admin@cms.local' } });
+  if (!existingAdmin) {
+    const passwordHash = await bcrypt.hash('Admin@1234', 12);
+    const adminUser = await prisma.user.create({
+      data: {
+        email: 'admin@cms.local',
+        passwordHash,
+        firstName: 'Super',
+        lastName: 'Admin',
+        status: 'ACTIVE',
+      },
+    });
+
+    if (adminRole) {
+      await prisma.userRole.create({
+        data: { userId: adminUser.id, roleId: adminRole.id },
+      });
+    }
+
+    console.log(`✅ Admin user created: admin@cms.local / Admin@1234`);
+  } else {
+    console.log(`ℹ️  Admin user already exists`);
+  }
+
+  // ─── Site Settings ────────────────────────────────────────────────────────
+  console.log('Creating site settings...');
+  const existing = await prisma.siteSetting.findFirst();
+  if (!existing) {
+    await prisma.siteSetting.create({
+      data: {
+        siteName: 'My CMS Site',
+        siteDescription: 'A powerful CMS built with NestJS and Next.js',
+        defaultSeoTitle: 'My CMS Site',
+        defaultSeoDescription: 'Welcome to My CMS Site',
+      },
+    });
+  }
+
+  // ─── Sample data ──────────────────────────────────────────────────────────
+  const admin = await prisma.user.findUnique({ where: { email: 'admin@cms.local' } });
+  if (admin) {
+    // Create header menu if missing
+    const headerMenu = await prisma.menu.findUnique({ where: { location: 'HEADER' } });
+    if (!headerMenu) {
+      await prisma.menu.create({
+        data: { name: 'Header Navigation', location: 'HEADER' },
+      });
+    }
+
+    // Create a sample category
+    const sampleCategory = await prisma.category.findUnique({ where: { slug: 'news' } });
+    if (!sampleCategory) {
+      await prisma.category.create({
+        data: { name: 'News', slug: 'news', description: 'Latest news and updates' },
+      });
+    }
+
+    // ── Blog categories ──────────────────────────────────────────────────
+    const blogCats = [
+      { name: 'Dinh Dưỡng & Eat Clean', slug: 'dinh-duong', description: 'Thực đơn và mẹo dinh dưỡng dành cho phụ nữ' },
+      { name: 'Bài Tập 30 Phút', slug: 'bai-tap', description: 'Hướng dẫn tập luyện 30 phút với máy kháng thủy lực' },
+      { name: 'Sức Khỏe & Thể Trạng', slug: 'suc-khoe', description: 'Kiến thức sức khỏe tổng quát cho phụ nữ' },
+      { name: 'Câu Chuyện Truyền Cảm Hứng', slug: 'truyen-cam-hung', description: 'Hành trình thay đổi của hội viên Curves' },
+    ];
+    for (const cat of blogCats) {
+      await prisma.category.upsert({
+        where: { slug: cat.slug },
+        update: {},
+        create: cat,
+      });
+    }
+
+    // ── Sample blog posts ─────────────────────────────────────────────────
+    if (admin) {
+      const dinhDuongCat = await prisma.category.findUnique({ where: { slug: 'dinh-duong' } });
+      const baiTapCat = await prisma.category.findUnique({ where: { slug: 'bai-tap' } });
+      const sucKhoeCat = await prisma.category.findUnique({ where: { slug: 'suc-khoe' } });
+      const truyenCamHungCat = await prisma.category.findUnique({ where: { slug: 'truyen-cam-hung' } });
+
+      const samplePosts = [
+        {
+          title: '5 Thực Đơn Eat Clean Giảm Mỡ Trong 7 Ngày Cho Phụ Nữ Văn Phòng',
+          slug: 'thuc-don-eat-clean-giam-mo-7-ngay',
+          excerpt: 'Khám phá 5 thực đơn Eat Clean được thiết kế riêng cho phụ nữ bận rộn, giúp giảm mỡ hiệu quả mà không cần nhịn đói.',
+          categoryId: dinhDuongCat?.id,
+          featuredImageUrl: 'https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=800&q=80',
+          content: `Eat Clean không có nghĩa là bạn phải nhịn đói hay ăn nhạt nhẽo. Với 5 thực đơn này, bạn sẽ thấy giảm cân trở nên thú vị và bền vững hơn nhiều.\n\nBí quyết là ăn đủ protein, chất xơ và hạn chế đường tinh luyện. Kết hợp với 30 phút tập tại Curves mỗi ngày, kết quả sẽ thấy rõ trong vòng 3-4 tuần!`,
+        },
+        {
+          title: 'Vì Sao Chỉ Cần 30 Phút Tập Luyện Mỗi Ngày Là Đủ? Khoa Học Giải Thích',
+          slug: 'tai-sao-30-phut-tap-luyen-la-du',
+          excerpt: 'Nhiều nghiên cứu khoa học đã chứng minh rằng 30 phút tập luyện cường độ vừa phải mỗi ngày có hiệu quả tương đương hoặc cao hơn 1-2 giờ tập gym truyền thống.',
+          categoryId: baiTapCat?.id,
+          featuredImageUrl: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=800&q=80',
+          content: `Theo nghiên cứu từ Đại học Harvard, 30 phút vận động cường độ vừa phải mỗi ngày đủ để cải thiện sức khỏe tim mạch, tăng cường trao đổi chất và kiểm soát cân nặng hiệu quả.\n\nTại Curves, hệ thống máy kháng thủy lực được thiết kế để tối đa hóa hiệu quả tập luyện trong khung thời gian ngắn nhất. Mỗi buổi 30 phút kích hoạt đồng thời 8 nhóm cơ chính!`,
+        },
+        {
+          title: 'Hành Trình Giảm 8kg Của Chị Lan - Từ Đau Lưng Mãn Tính Đến Tự Tin Mặc Váy',
+          slug: 'hanh-trinh-giam-8kg-cua-chi-lan',
+          excerpt: 'Câu chuyện truyền cảm hứng của chị Nguyễn Thị Lan, 38 tuổi, nhân viên kế toán tại TP.HCM - từ người sợ đến phòng gym đến hội viên Curves kiên trì nhất tháng.',
+          categoryId: truyenCamHungCat?.id,
+          featuredImageUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=800&q=80',
+          content: `"Tôi từng nghĩ phòng gym là nơi dành cho những người trẻ và năng động. Ở tuổi 38, với đôi đầu gối yếu và cơn đau lưng mãn tính, tôi chưa bao giờ nghĩ mình có thể tập gym được." - Chị Lan chia sẻ.\n\nSau 6 tháng kiên trì với Curves, chị đã giảm 8kg và không còn đau lưng như trước nữa. Máy kháng thủy lực nhẹ nhàng với khớp nhưng vẫn cho kết quả đáng kinh ngạc!`,
+        },
+        {
+          title: 'Cách Cải Thiện Mật Độ Xương Sau Tuổi 40 - Những Điều Phụ Nữ Cần Biết',
+          slug: 'cai-thien-mat-do-xuong-sau-tuoi-40',
+          excerpt: 'Sau tuổi 40, phụ nữ mất đi khoảng 1-2% mật độ xương mỗi năm. Đây là những gì bạn có thể làm để ngăn chặn và cải thiện tình trạng này.',
+          categoryId: sucKhoeCat?.id,
+          featuredImageUrl: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=800&q=80',
+          content: `Loãng xương là một trong những vấn đề sức khỏe phổ biến nhất ở phụ nữ trung niên. Tuy nhiên, tin vui là tập luyện kháng lực đúng cách có thể giúp duy trì và thậm chí tăng mật độ xương.\n\nMáy kháng thủy lực tại Curves tạo ra lực tác động nhẹ nhàng nhưng đủ để kích thích quá trình tạo xương, an toàn tuyệt đối ngay cả với người có vấn đề về xương khớp.`,
+        },
+      ];
+
+      for (const p of samplePosts) {
+        const exists = await prisma.post.findUnique({ where: { slug: p.slug } });
+        if (exists) continue;
+
+        const post = await prisma.post.create({
+          data: {
+            title: p.title,
+            slug: p.slug,
+            excerpt: p.excerpt,
+            status: 'PUBLISHED',
+            publishedAt: new Date(),
+            authorId: admin.id,
+            seoTitle: p.title,
+            seoDescription: p.excerpt,
+          },
+        });
+
+        // Add content as RICH_TEXT block
+        await prisma.postBlock.create({
+          data: {
+            postId: post.id,
+            type: 'RICH_TEXT',
+            order: 0,
+            schemaVersion: 1,
+            data: {
+              schemaVersion: 1,
+              content: {
+                type: 'doc',
+                content: p.content.split('\n\n').map((paragraph) => ({
+                  type: 'paragraph',
+                  content: [{ type: 'text', text: paragraph }],
+                })),
+              },
+            },
+          },
+        });
+
+        // Associate with category
+        if (p.categoryId) {
+          await prisma.postCategory.create({
+            data: { postId: post.id, categoryId: p.categoryId },
+          });
+        }
+      }
+      console.log('✅ Sample blog posts created');
+    }
+
+    // ─── Sample Promotion Banner ─────────────────────────────────────────────
+    console.log('Creating sample promotion banner...');
+  const existingBanner = await prisma.promotionBanner.findFirst();
+  if (!existingBanner) {
+    const endsAt = new Date();
+    endsAt.setDate(endsAt.getDate() + 7);
+    await prisma.promotionBanner.create({
+      data: {
+        badgeText: 'Ưu Đãi Tháng Này',
+        headline: 'Tặng 01 Buổi Phân Tích InBody & 3 Ngày Tập Thử Miễn Phí',
+        description:
+          'Nhận ngay gói trải nghiệm toàn bộ máy kháng thủy lực, kiểm tra lượng mỡ thừa, mỡ nội tạng và tư vấn chế độ ăn uống hoàn toàn không mất phí!',
+        ctaLabel: '🎁 ĐĂNG KÝ NHẬN VOUCHER NGAY',
+        ctaSource: 'Seed Promotion Banner',
+        countdownLabel: 'Chương trình kết thúc sau:',
+        endsAt,
+        isActive: true,
+        sortOrder: 0,
+      },
+    });
+    console.log('✅ Sample promotion banner created');
+  }
+
+  console.log('✅ Seeding complete!');
+}
+
+main()
+  .catch((e) => {
+    console.error('❌ Seed failed:', e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });
