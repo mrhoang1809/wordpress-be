@@ -12,16 +12,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PostsService = void 0;
 const common_1 = require("@nestjs/common");
 const client_1 = require("@prisma/client");
+const transliteration_1 = require("transliteration");
 const prisma_service_1 = require("../../database/prisma.service");
 const pagination_dto_1 = require("../../common/dto/pagination.dto");
 const revalidation_service_1 = require("../revalidation/revalidation.service");
 function slugify(text) {
-    return text
-        .toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, '')
-        .trim()
-        .replace(/[\s_]+/g, '-')
+    return (0, transliteration_1.slugify)(text, { lowercase: true, separator: '-', trim: true })
+        .replace(/[^a-z0-9-]/g, '')
         .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '')
         .slice(0, 500);
 }
 const POST_INCLUDE = {

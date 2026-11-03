@@ -5,6 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { ContentStatus } from '@prisma/client';
+import { slugify as transliterateSlugify } from 'transliteration';
 import { PrismaService } from '../../database/prisma.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { JwtPayload } from '../../common/types/jwt-payload.type';
@@ -13,12 +14,11 @@ import { BlocksService as PageBlocksService, SyncBlocksDto } from '../pages/bloc
 import { RevalidationService } from '../revalidation/revalidation.service';
 
 function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .trim()
-    .replace(/[\s_]+/g, '-')
+  // transliterateSlugify handles Vietnamese → ASCII (e.g. "Bài Viết" → "bai-viet")
+  return transliterateSlugify(text, { lowercase: true, separator: '-', trim: true })
+    .replace(/[^a-z0-9-]/g, '')
     .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
     .slice(0, 500);
 }
 
