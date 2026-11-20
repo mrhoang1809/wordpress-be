@@ -1,0 +1,72 @@
+name: CI — Backend
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  ci:
+    name: Lint · Type-check · Build
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: cms
+          POSTGRES_PASSWORD: cms_password
+          POSTGRES_DB: cms_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://cms:cms_password@localhost:5432/cms_db
+      JWT_SECRET: ci_jwt_secret_min_32_characters_here
+      JWT_REFRESH_SECRET: ci_jwt_refresh_secret_min_32_chars
+      JWT_ACCESS_EXPIRES_IN: 15m
+      JWT_REFRESH_EXPIRES_IN: 7d
+      PORT: 3001
+      NODE_ENV: test
+      ALLOWED_ORIGINS: http://localhost:3000
+      REVALIDATION_SECRET: ci_revalidation_secret
+      REVALIDATION_URL: http://localhost:3000/api/revalidate
+      MAX_UPLOAD_SIZE_MB: 10
+      UPLOAD_DEST: ./uploads
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type-check
+        run: npx tsc --noEmit
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Run migrations
+        run: npx prisma migrate deploy
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm test -- --passWithNoTests

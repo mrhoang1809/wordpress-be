@@ -99,19 +99,17 @@ export class MediaService {
       const webpFilename = file.filename.replace(/\.[^.]+$/, '.webp');
       const webpPath = path.join(uploadDest, webpFilename);
 
-      const sharpInstance = sharpFn(originalPath);
-      const meta = await sharpInstance.metadata();
-      width = meta.width ?? null;
-      height = meta.height ?? null;
+      const meta = await sharpFn(originalPath).metadata();
+      const originalWidth = meta.width ?? null;
 
       // Resize if wider than 1920px (typical max content width)
       const maxWidth = 1920;
-      const resizeOpts = meta.width && meta.width > maxWidth
+      const resizeOpts = originalWidth && originalWidth > maxWidth
         ? { width: maxWidth, withoutEnlargement: true }
         : undefined;
 
-      const { size: compressedSize } = await sharpInstance
-        .rotate()                       // auto-orient from EXIF
+      const outputInfo = await sharpFn(originalPath)
+        .rotate()                        // auto-orient from EXIF
         .resize(resizeOpts)
         .webp({ quality: 82, effort: 4 }) // quality 82 = great balance size/quality
         .toFile(webpPath);
@@ -121,7 +119,10 @@ export class MediaService {
 
       storageKey = webpFilename;
       finalMime = 'image/webp';
-      finalSize = compressedSize;
+      finalSize = outputInfo.size;
+      // Use post-resize dimensions (what was actually saved)
+      width = outputInfo.width ?? null;
+      height = outputInfo.height ?? null;
     }
 
     const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') ?? `http://localhost:${process.env.PORT ?? 3001}`;
