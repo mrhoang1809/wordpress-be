@@ -86,7 +86,6 @@ __decorate([
     (0, require_permissions_decorator_1.RequirePermissions)('users:create'),
     (0, swagger_1.ApiOperation)({ summary: 'Create a new user' }),
     (0, swagger_1.ApiResponse)({ status: 201 }),
-    openapi.ApiResponse({ status: 201 }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_user_dto_1.CreateUserDto]),

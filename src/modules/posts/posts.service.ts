@@ -10,7 +10,7 @@ import { PrismaService } from '../../database/prisma.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { JwtPayload } from '../../common/types/jwt-payload.type';
 import { paginate, PaginationQueryDto } from '../../common/dto/pagination.dto';
-import { BlocksService as PageBlocksService, SyncBlocksDto } from '../pages/blocks/blocks.service';
+import { SyncBlocksDto } from '../pages/blocks/blocks.service';
 import { RevalidationService } from '../revalidation/revalidation.service';
 
 function slugify(text: string): string {

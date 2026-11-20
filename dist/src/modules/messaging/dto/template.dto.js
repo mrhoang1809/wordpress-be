@@ -16,7 +16,7 @@ const client_1 = require("@prisma/client");
 const class_validator_1 = require("class-validator");
 class CreateTemplateDto {
     static _OPENAPI_METADATA_FACTORY() {
-        return { name: { required: true, type: () => String, minLength: 1 }, platform: { required: true, type: () => Object }, messageType: { required: false, type: () => String }, content: { required: true, type: () => Object }, isActive: { required: false, type: () => Boolean } };
+        return { name: { required: true, type: () => String, minLength: 1 }, platform: { required: true, enum: ["ZALO", "FACEBOOK"] }, messageType: { required: false, type: () => String }, content: { required: true, type: "object", additionalProperties: true }, isActive: { required: false, type: () => Boolean } };
     }
 }
 exports.CreateTemplateDto = CreateTemplateDto;
@@ -50,7 +50,7 @@ __decorate([
 ], CreateTemplateDto.prototype, "isActive", void 0);
 class UpdateTemplateDto {
     static _OPENAPI_METADATA_FACTORY() {
-        return { name: { required: false, type: () => String }, platform: { required: false, type: () => Object }, messageType: { required: false, type: () => String }, content: { required: false, type: () => Object }, isActive: { required: false, type: () => Boolean } };
+        return { name: { required: false, type: () => String }, platform: { required: false, enum: ["ZALO", "FACEBOOK"] }, messageType: { required: false, type: () => String }, content: { required: false, type: "object", additionalProperties: true }, isActive: { required: false, type: () => Boolean } };
     }
 }
 exports.UpdateTemplateDto = UpdateTemplateDto;

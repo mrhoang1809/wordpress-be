@@ -17,7 +17,7 @@ const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
 class BlockItemDto {
     static _OPENAPI_METADATA_FACTORY() {
-        return { id: { required: true, type: () => String }, type: { required: true, type: () => Object }, order: { required: true, type: () => Number, minimum: 0 }, data: { required: true, type: () => Object }, schemaVersion: { required: false, type: () => Number, minimum: 1 } };
+        return { id: { required: true, type: () => String }, type: { required: true, enum: ["HERO", "BANNER", "RICH_TEXT", "IMAGE", "CTA", "FAQ"] }, order: { required: true, type: () => Number, minimum: 0 }, data: { required: true, type: "object", additionalProperties: true }, schemaVersion: { required: false, type: () => Number, minimum: 1 } };
     }
 }
 exports.BlockItemDto = BlockItemDto;

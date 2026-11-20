@@ -16,7 +16,7 @@ const client_1 = require("@prisma/client");
 const class_validator_1 = require("class-validator");
 class CreateCampaignDto {
     static _OPENAPI_METADATA_FACTORY() {
-        return { title: { required: true, type: () => String, minLength: 1 }, platform: { required: true, type: () => Object }, messageType: { required: false, type: () => String }, content: { required: true, type: () => Object }, targetTags: { required: false, type: () => [String] }, scheduledAt: { required: false, type: () => String } };
+        return { title: { required: true, type: () => String, minLength: 1 }, platform: { required: true, enum: ["ZALO", "FACEBOOK"] }, messageType: { required: false, type: () => String }, content: { required: true, type: "object", additionalProperties: true }, targetTags: { required: false, type: () => [String] }, scheduledAt: { required: false, type: () => String } };
     }
 }
 exports.CreateCampaignDto = CreateCampaignDto;
@@ -60,7 +60,7 @@ __decorate([
 ], CreateCampaignDto.prototype, "scheduledAt", void 0);
 class UpdateCampaignDto {
     static _OPENAPI_METADATA_FACTORY() {
-        return { title: { required: false, type: () => String }, platform: { required: false, type: () => Object }, messageType: { required: false, type: () => String }, content: { required: false, type: () => Object }, targetTags: { required: false, type: () => [String] }, scheduledAt: { required: false, type: () => String } };
+        return { title: { required: false, type: () => String }, platform: { required: false, enum: ["ZALO", "FACEBOOK"] }, messageType: { required: false, type: () => String }, content: { required: false, type: "object", additionalProperties: true }, targetTags: { required: false, type: () => [String] }, scheduledAt: { required: false, type: () => String } };
     }
 }
 exports.UpdateCampaignDto = UpdateCampaignDto;

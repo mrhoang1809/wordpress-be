@@ -121,7 +121,7 @@ let CampaignsService = CampaignsService_1 = class CampaignsService {
             throw new common_1.NotFoundException('Campaign not found');
         await this.prisma.messageCampaign.delete({ where: { id } });
     }
-    async send(id, user) {
+    async send(id, _user) {
         const campaign = await this.prisma.messageCampaign.findUnique({ where: { id } });
         if (!campaign)
             throw new common_1.NotFoundException('Campaign not found');
@@ -214,9 +214,8 @@ let CampaignsService = CampaignsService_1 = class CampaignsService {
         const batchSize = this.configService.get('messaging', { infer: true }).batchSize;
         let sentCount = 0;
         let failedCount = 0;
-        let hasMore = true;
         let skip = 0;
-        while (hasMore) {
+        while (true) {
             const campaign = await this.prisma.messageCampaign.findUnique({
                 where: { id: campaignId },
                 select: { status: true },
@@ -234,7 +233,6 @@ let CampaignsService = CampaignsService_1 = class CampaignsService {
                 skip,
             });
             if (recipients.length === 0) {
-                hasMore = false;
                 break;
             }
             for (const recipient of recipients) {
@@ -244,7 +242,6 @@ let CampaignsService = CampaignsService_1 = class CampaignsService {
                         select: { status: true },
                     });
                     if (c?.status === client_1.CampaignStatus.CANCELLED) {
-                        hasMore = false;
                         break;
                     }
                 }

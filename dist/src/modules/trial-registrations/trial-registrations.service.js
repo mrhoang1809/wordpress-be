@@ -57,7 +57,7 @@ let TrialRegistrationsService = TrialRegistrationsService_1 = class TrialRegistr
     }
     async sendNotificationEmail(registration) {
         const settings = await this.settingsService.get();
-        const toEmail = settings.trialNotifyEmail;
+        const toEmail = settings.trialNotifyEmail ?? null;
         if (!toEmail) {
             this.logger.debug('No trialNotifyEmail set — skipping email notification');
             return;

@@ -189,7 +189,7 @@ export declare class PagesService {
         createdById: string;
     }>;
     delete(id: string, user: JwtPayload): Promise<void>;
-    publish(id: string, user: JwtPayload): Promise<{
+    publish(id: string, _user: JwtPayload): Promise<{
         featuredImage: {
             id: string;
             url: string;
@@ -227,7 +227,7 @@ export declare class PagesService {
         version: number;
         createdById: string;
     }>;
-    unpublish(id: string, user: JwtPayload): Promise<{
+    unpublish(id: string, _user: JwtPayload): Promise<{
         featuredImage: {
             id: string;
             url: string;
@@ -303,7 +303,7 @@ export declare class PagesService {
         version: number;
         createdById: string;
     }>;
-    generatePreviewToken(id: string, user: JwtPayload): Promise<{
+    generatePreviewToken(id: string, _user: JwtPayload): Promise<{
         token: string;
     }>;
     private assertSlugUnique;

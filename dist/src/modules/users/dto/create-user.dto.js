@@ -16,7 +16,7 @@ const client_1 = require("@prisma/client");
 const class_validator_1 = require("class-validator");
 class CreateUserDto {
     static _OPENAPI_METADATA_FACTORY() {
-        return { email: { required: true, type: () => String, format: "email" }, password: { required: true, type: () => String, minLength: 8 }, firstName: { required: true, type: () => String }, lastName: { required: true, type: () => String }, roles: { required: false, type: () => [Object] } };
+        return { email: { required: true, type: () => String, format: "email" }, password: { required: true, type: () => String, minLength: 8 }, firstName: { required: true, type: () => String }, lastName: { required: true, type: () => String }, roles: { required: false, type: () => [Object], enum: ["ADMIN", "EDITOR", "AUTHOR"], isArray: true } };
     }
 }
 exports.CreateUserDto = CreateUserDto;

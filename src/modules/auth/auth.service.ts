@@ -213,7 +213,7 @@ export class AuthService {
     const jwtConfig = this.configService.get('jwt', { infer: true });
     return this.jwtService.signAsync(payload, {
       secret: jwtConfig.secret,
-      expiresIn: jwtConfig.accessExpiresIn,
+      expiresIn: jwtConfig.accessExpiresIn as `${number}${'s' | 'm' | 'h' | 'd'}`,
     });
   }
 
@@ -221,7 +221,7 @@ export class AuthService {
     const jwtConfig = this.configService.get('jwt', { infer: true });
     return this.jwtService.signAsync(payload, {
       secret: jwtConfig.refreshSecret,
-      expiresIn: jwtConfig.refreshExpiresIn,
+      expiresIn: jwtConfig.refreshExpiresIn as `${number}${'s' | 'm' | 'h' | 'd'}`,
     });
   }
 

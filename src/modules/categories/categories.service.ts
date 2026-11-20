@@ -177,7 +177,7 @@ export class CategoriesService {
       }
       if (visited.has(cursor)) break;
       visited.add(cursor);
-      // eslint-disable-next-line no-await-in-loop
+       
       const row: { parentId: string | null } | null = await this.prisma.category.findUnique({
         where: { id: cursor },
         select: { parentId: true },

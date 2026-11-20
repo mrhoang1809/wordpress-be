@@ -64,11 +64,13 @@ export class TrialRegistrationsService {
   // ─── Email notification ──────────────────────────────────────────────────────
 
   private async sendNotificationEmail(
-    registration: Awaited<ReturnType<typeof this.prisma.trialRegistration.create>>,
+    registration: Awaited<ReturnType<typeof this.prisma.trialRegistration.create>> & {
+      location?: { name: string; address: string | null; phone: string | null } | null;
+    },
   ) {
     // Load notify email from settings
     const settings = await this.settingsService.get();
-    const toEmail = (settings as any).trialNotifyEmail as string | null;
+    const toEmail = settings.trialNotifyEmail ?? null;
 
     if (!toEmail) {
       this.logger.debug('No trialNotifyEmail set — skipping email notification');
@@ -94,9 +96,9 @@ export class TrialRegistrationsService {
       auth: { user: smtpUser, pass: smtpPass },
     });
 
-    const locationName = (registration as any).location?.name ?? 'Chưa chọn';
-    const locationAddress = (registration as any).location?.address ?? '';
-    const locationPhone = (registration as any).location?.phone ?? '';
+    const locationName = registration.location?.name ?? 'Chưa chọn';
+    const locationAddress = registration.location?.address ?? '';
+    const locationPhone = registration.location?.phone ?? '';
 
     const submittedAt = new Date(registration.createdAt).toLocaleString('vi-VN', {
       timeZone: 'Asia/Ho_Chi_Minh',

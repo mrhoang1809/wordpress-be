@@ -156,7 +156,7 @@ let PagesService = class PagesService {
         }
         await this.prisma.page.delete({ where: { id } });
     }
-    async publish(id, user) {
+    async publish(id, _user) {
         const page = await this.prisma.page.findUnique({ where: { id } });
         if (!page)
             throw new common_1.NotFoundException('Page not found');
@@ -171,7 +171,7 @@ let PagesService = class PagesService {
         await this.revalidation.revalidate('page', page.slug);
         return updated;
     }
-    async unpublish(id, user) {
+    async unpublish(id, _user) {
         const page = await this.prisma.page.findUnique({ where: { id } });
         if (!page)
             throw new common_1.NotFoundException('Page not found');
@@ -214,7 +214,7 @@ let PagesService = class PagesService {
             include: PAGE_INCLUDE,
         });
     }
-    async generatePreviewToken(id, user) {
+    async generatePreviewToken(id, _user) {
         const page = await this.prisma.page.findUnique({ where: { id } });
         if (!page)
             throw new common_1.NotFoundException('Page not found');

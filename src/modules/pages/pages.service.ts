@@ -172,7 +172,7 @@ export class PagesService {
     await this.prisma.page.delete({ where: { id } });
   }
 
-  async publish(id: string, user: JwtPayload) {
+  async publish(id: string, _user: JwtPayload) {
     const page = await this.prisma.page.findUnique({ where: { id } });
     if (!page) throw new NotFoundException('Page not found');
 
@@ -189,7 +189,7 @@ export class PagesService {
     return updated;
   }
 
-  async unpublish(id: string, user: JwtPayload) {
+  async unpublish(id: string, _user: JwtPayload) {
     const page = await this.prisma.page.findUnique({ where: { id } });
     if (!page) throw new NotFoundException('Page not found');
 
@@ -236,7 +236,7 @@ export class PagesService {
     });
   }
 
-  async generatePreviewToken(id: string, user: JwtPayload): Promise<{ token: string }> {
+  async generatePreviewToken(id: string, _user: JwtPayload): Promise<{ token: string }> {
     const page = await this.prisma.page.findUnique({ where: { id } });
     if (!page) throw new NotFoundException('Page not found');
 

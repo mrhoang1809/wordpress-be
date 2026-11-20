@@ -136,7 +136,7 @@ export class CampaignsService {
    * Send a campaign to all matching subscribers.
    * This is the core bulk-send logic with rate limiting and per-recipient tracking.
    */
-  async send(id: string, user: JwtPayload): Promise<{ started: boolean; recipientCount: number }> {
+  async send(id: string, _user: JwtPayload): Promise<{ started: boolean; recipientCount: number }> {
     const campaign = await this.prisma.messageCampaign.findUnique({ where: { id } });
     if (!campaign) throw new NotFoundException('Campaign not found');
 
@@ -264,10 +264,9 @@ export class CampaignsService {
     let failedCount = 0;
 
     // Process in batches to avoid overwhelming the API
-    let hasMore = true;
     let skip = 0;
 
-    while (hasMore) {
+    while (true) {
       // Check if campaign was cancelled
       const campaign = await this.prisma.messageCampaign.findUnique({
         where: { id: campaignId },
@@ -288,7 +287,6 @@ export class CampaignsService {
       });
 
       if (recipients.length === 0) {
-        hasMore = false;
         break;
       }
 
@@ -300,7 +298,6 @@ export class CampaignsService {
             select: { status: true },
           });
           if (c?.status === CampaignStatus.CANCELLED) {
-            hasMore = false;
             break;
           }
         }

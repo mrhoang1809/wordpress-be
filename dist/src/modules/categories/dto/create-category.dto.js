@@ -15,7 +15,7 @@ const swagger_1 = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
 class CreateCategoryDto {
     static _OPENAPI_METADATA_FACTORY() {
-        return { name: { required: true, type: () => String, minLength: 1, maxLength: 200 }, slug: { required: false, type: () => String, maxLength: 200, pattern: "/^[a-z0-9]+(?:-[a-z0-9]+)*$/" }, description: { required: false, type: () => String, maxLength: 2000 }, parentId: { required: false, type: () => String }, imageId: { required: false, type: () => String }, order: { required: false, type: () => Number, minimum: 0 }, isActive: { required: false, type: () => Boolean } };
+        return { name: { required: true, type: () => String, minLength: 1, maxLength: 200 }, slug: { required: false, type: () => String, maxLength: 200, pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$" }, description: { required: false, type: () => String, maxLength: 2000 }, parentId: { required: false, type: () => String }, imageId: { required: false, type: () => String }, order: { required: false, type: () => Number, minimum: 0 }, isActive: { required: false, type: () => Boolean } };
     }
 }
 exports.CreateCategoryDto = CreateCategoryDto;

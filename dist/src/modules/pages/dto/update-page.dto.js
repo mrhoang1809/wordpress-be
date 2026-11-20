@@ -15,7 +15,7 @@ const swagger_1 = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
 class UpdatePageDto {
     static _OPENAPI_METADATA_FACTORY() {
-        return { title: { required: false, type: () => String, maxLength: 500 }, slug: { required: false, type: () => String, maxLength: 500, pattern: "/^[a-z0-9]+(?:-[a-z0-9]+)*$/" }, excerpt: { required: false, type: () => String, maxLength: 500 }, seoTitle: { required: false, type: () => String, maxLength: 200 }, seoDescription: { required: false, type: () => String, maxLength: 500 }, seoImage: { required: false, type: () => String }, featuredImageId: { required: false, type: () => String } };
+        return { title: { required: false, type: () => String, maxLength: 500 }, slug: { required: false, type: () => String, maxLength: 500, pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$" }, excerpt: { required: false, type: () => String, maxLength: 500 }, seoTitle: { required: false, type: () => String, maxLength: 200 }, seoDescription: { required: false, type: () => String, maxLength: 500 }, seoImage: { required: false, type: () => String }, featuredImageId: { required: false, type: () => String } };
     }
 }
 exports.UpdatePageDto = UpdatePageDto;

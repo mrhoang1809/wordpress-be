@@ -25,6 +25,7 @@ const ALLOWED_MIME_TYPES = [
 ];
 
 // Images > this size get compressed to WebP (SVG/GIF pass through unchanged)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- kept for future use
 const COMPRESS_THRESHOLD_BYTES = 50 * 1024; // 50KB
 
 export interface UploadedFileInfo {

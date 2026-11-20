@@ -85,6 +85,8 @@ let AdminTrialRegistrationsController = class AdminTrialRegistrationsController 
 };
 exports.AdminTrialRegistrationsController = AdminTrialRegistrationsController;
 __decorate([
+    openapi.ApiQuery({ name: "page", required: false }),
+    openapi.ApiQuery({ name: "pageSize", required: false }),
     (0, common_1.Get)(),
     (0, require_permissions_decorator_1.RequirePermissions)('settings:read'),
     (0, swagger_1.ApiOperation)({ summary: 'List all trial registrations (admin)' }),

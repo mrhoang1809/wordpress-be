@@ -224,6 +224,10 @@ let PublicPostsController = class PublicPostsController {
 };
 exports.PublicPostsController = PublicPostsController;
 __decorate([
+    openapi.ApiQuery({ name: "page", required: false }),
+    openapi.ApiQuery({ name: "pageSize", required: false }),
+    openapi.ApiQuery({ name: "categorySlug", required: false }),
+    openapi.ApiQuery({ name: "search", required: false }),
     (0, public_decorator_1.Public)(),
     (0, common_1.Get)(),
     (0, swagger_1.ApiOperation)({ summary: 'List published posts (public) — supports ?page, ?pageSize, ?categorySlug, ?search' }),

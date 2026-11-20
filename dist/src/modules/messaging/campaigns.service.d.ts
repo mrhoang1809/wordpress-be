@@ -132,7 +132,7 @@ export declare class CampaignsService {
         completedAt: Date | null;
     }>;
     delete(id: string): Promise<void>;
-    send(id: string, user: JwtPayload): Promise<{
+    send(id: string, _user: JwtPayload): Promise<{
         started: boolean;
         recipientCount: number;
     }>;

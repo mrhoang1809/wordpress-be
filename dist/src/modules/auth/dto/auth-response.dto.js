@@ -15,7 +15,7 @@ const swagger_1 = require("@nestjs/swagger");
 const client_1 = require("@prisma/client");
 class UserProfileDto {
     static _OPENAPI_METADATA_FACTORY() {
-        return { id: { required: true, type: () => String }, email: { required: true, type: () => String }, firstName: { required: true, type: () => String }, lastName: { required: true, type: () => String }, roles: { required: true, type: () => [Object] }, permissions: { required: true, type: () => [String] } };
+        return { id: { required: true, type: () => String }, email: { required: true, type: () => String }, firstName: { required: true, type: () => String }, lastName: { required: true, type: () => String }, roles: { required: true, type: () => [Object], enum: ["ADMIN", "EDITOR", "AUTHOR"], isArray: true }, permissions: { required: true, type: () => [String] } };
     }
 }
 exports.UserProfileDto = UserProfileDto;

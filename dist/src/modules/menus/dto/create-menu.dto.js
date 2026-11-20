@@ -17,7 +17,7 @@ const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
 class CreateMenuDto {
     static _OPENAPI_METADATA_FACTORY() {
-        return { name: { required: true, type: () => String, minLength: 1 }, location: { required: true, type: () => Object }, isActive: { required: false, type: () => Boolean } };
+        return { name: { required: true, type: () => String, minLength: 1 }, location: { required: true, enum: ["HEADER", "FOOTER", "SIDEBAR", "CUSTOM"] }, isActive: { required: false, type: () => Boolean } };
     }
 }
 exports.CreateMenuDto = CreateMenuDto;
@@ -40,7 +40,7 @@ __decorate([
 ], CreateMenuDto.prototype, "isActive", void 0);
 class MenuItemDto {
     static _OPENAPI_METADATA_FACTORY() {
-        return { id: { required: true, type: () => String }, label: { required: true, type: () => String, minLength: 1 }, type: { required: true, type: () => Object }, parentId: { required: false, type: () => String }, order: { required: true, type: () => Number, minimum: 0 }, pageId: { required: false, type: () => String }, postId: { required: false, type: () => String }, categoryId: { required: false, type: () => String }, customUrl: { required: false, type: () => String }, openInNewTab: { required: false, type: () => Boolean }, isActive: { required: false, type: () => Boolean } };
+        return { id: { required: true, type: () => String }, label: { required: true, type: () => String, minLength: 1 }, type: { required: true, enum: ["POST", "PAGE", "CATEGORY", "CUSTOM_URL"] }, parentId: { required: false, type: () => String }, order: { required: true, type: () => Number, minimum: 0 }, pageId: { required: false, type: () => String }, postId: { required: false, type: () => String }, categoryId: { required: false, type: () => String }, customUrl: { required: false, type: () => String }, openInNewTab: { required: false, type: () => Boolean }, isActive: { required: false, type: () => Boolean } };
     }
 }
 exports.MenuItemDto = MenuItemDto;

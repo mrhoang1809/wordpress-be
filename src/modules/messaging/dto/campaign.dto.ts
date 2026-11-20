@@ -1,6 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { MessagePlatform } from '@prisma/client';
-import { Type } from 'class-transformer';
 import {
   IsArray,
   IsEnum,
